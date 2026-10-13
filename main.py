@@ -166,6 +166,7 @@ def play_round(word):
         print("Введенные буквы: ", *used_letters)
 
     if errors == 6:
+        show_hangman(errors)
         print("Увы вы проиграли")
         print("Слово было: ", *word, sep="")
 
