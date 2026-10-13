@@ -1,6 +1,6 @@
 import random
 
-HANDMAN = [
+HANGMAN = [
     r"""
         _____
         |   |
@@ -72,9 +72,24 @@ def show_begin():
     print("Задано слово. Угадайте его")
 
 
-def get_sample():
-    with open("words.txt", "r", encoding="utf-8") as f:
-        words = f.read().splitlines()
+def get_random_word():
+    try:
+        with open("words.txt", "r", encoding="utf-8") as f:
+            words = f.read().splitlines()
+    except FileNotFoundError:
+        print("Файл words.txt не найден")
+        return None
+
+    clean_words = []
+    for w in words:
+        if len(w) >= 3 and w.isalpha():
+            clean_words.append(w)
+    words = clean_words
+
+    if not words:
+        print("Словарь пуст")
+        return None
+
     return list(random.choice(words))
 
 
@@ -84,14 +99,14 @@ def get_choice():
 
 def try_choice(letter):
     alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
-    while letter not in alphabet or len(letter) > 1:
+    while len(letter) != 1 or letter not in alphabet:
         print("Пишите только 1 русскую букву:")
         letter = get_choice()
     return letter
 
 
 def show_hangman(errors_of_try):
-    print(HANDMAN[errors_of_try])
+    print(HANGMAN[errors_of_try])
 
 
 def play_round(word):
@@ -99,7 +114,7 @@ def play_round(word):
 
     errors = 0
     mask = ['_'] * len(word)
-    used_letters = set()
+    used_letters = []
 
     while errors < 6:
         found = False
@@ -114,9 +129,10 @@ def play_round(word):
 
         if choice in used_letters:
             print("Это буква уже была введена")
+            print("Введенные буквы: ", *used_letters)
             continue
-
-        used_letters.add(choice)
+        
+        used_letters.append(choice)
 
         for n in range(len(word)):
             if word[n] == choice:
@@ -124,6 +140,8 @@ def play_round(word):
                 found = True
 
         if word == mask:
+            show_hangman(errors)
+            print(*mask)
             print("Ура вы победили")
             break
         elif not found:
@@ -131,6 +149,8 @@ def play_round(word):
             print("Осторожно осталось попыток ", 6 - errors)
         else:
             print("Верно! Продолжайте ")
+
+        print("Введенные буквы: ", *used_letters)
 
     if errors == 6:
         show_hangman(errors)
@@ -142,9 +162,11 @@ def main():
     while True:
         show_menu()
         choice = get_choice()
-
+        
         if choice == '1':
-            myword = get_sample()
+            myword = get_random_word()
+            if myword is None:
+                continue
             play_round(myword)
         elif choice == '0':
             break
