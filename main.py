@@ -1,5 +1,64 @@
 import random
 
+HANDMAN = [
+    r"""
+        _____
+        |   |
+            |
+            |
+            |
+      ______|___
+""",
+    r"""
+        _____
+        |   |
+        0   |
+            |
+            |
+      ______|___
+""",
+    r"""
+        _____
+        |   |
+        0   |
+        |   |
+            |
+      ______|___
+""",
+    r"""
+        _____
+        |   |
+        0   |
+       \|   |
+            |
+      ______|___
+""",
+    r"""
+        _____
+        |   |
+        0   |
+       \|/  |
+            |
+      ______|___
+""",
+    r"""
+        _____
+        |   |
+        0   |
+       \|/  |
+       /    |
+      ______|___
+""",
+    r"""
+        _____
+        |   |
+        0   |
+       \|/  |
+       / \  |
+      ______|___
+"""
+]
+
 
 def show_menu():
     print("\n=== Игра Виселица ===")
@@ -9,7 +68,7 @@ def show_menu():
 
 
 def show_begin():
-    print("\n=== Запущено новая игра ===")
+    print("\n=== Запущена новая игра ===")
     print("Задано слово. Угадайте его")
 
 
@@ -31,123 +90,63 @@ def try_choice(letter):
     return letter
 
 
-def get_situation(number_of_try):
-    HANDMAN = [
-        """
-          _____
-          |   |
-              |
-              |
-              |
-        ______|___
-    """,
-        """
-          _____
-          |   |
-          0   |
-              |
-              |
-        ______|___
-    """,
-        """
-          _____
-          |   |
-          0   |
-          |   |
-              |
-        ______|___
-    """,
-        """
-          _____
-          |   |
-          0   |
-         \|   |
-              |
-        ______|___
-    """,
-        """
-          _____
-          |   |
-          0   |
-         \|/  |
-              |
-        ______|___
-    """,
-        """
-          _____
-          |   |
-          0   |
-         \|/  |
-         /    |
-        ______|___
-    """,
-        """
-          _____
-          |   |
-          0   |
-         \|/  |
-         / \  |
-        ______|___
-    """
-    ]
-    print(HANDMAN[number_of_try])
+def show_hangman(errors_of_try):
+    print(HANDMAN[errors_of_try])
 
 
-def try_stand(word):
+def play_round(word):
     show_begin()
 
-    number = 0
-    player = []
+    errors = 0
+    mask = ['_'] * len(word)
+    used_letters = set()
 
-    for i in range(len(word)):
-        player.append('_')
+    while errors < 6:
+        found = False
+        show_hangman(errors)
 
-    while number < 6:
-        trying = False
-        get_situation(number)
-
-        for n in range(len(player)):
-            print(player[n], end=" ")
+        for n in range(len(mask)):
+            print(mask[n], end=" ")
         print()
 
-        choise = get_choice()
-        choise = try_choice(choise)
+        choice = get_choice()
+        choice = try_choice(choice)
+
+        if choice in used_letters:
+            print("Это буква уже была введена")
+            continue
+
+        used_letters.add(choice)
 
         for n in range(len(word)):
-            if word[n] == choise:
-                if player[n] == word[n]:
-                    print("Это буква уже была записана")
-                    trying = True
-                    break
-                player[n] = word[n]
-                trying = True
+            if word[n] == choice:
+                mask[n] = word[n]
+                found = True
 
-        if not trying:
-            number += 1
-            print("Осторожно осталось попыток ", 6 - number)
+        if word == mask:
+            print("Ура вы победили")
+            break
+        elif not found:
+            errors += 1
+            print("Осторожно осталось попыток ", 6 - errors)
         else:
             print("Верно! Продолжайте ")
 
-        trying = False
-
-        if word == player:
-            print("Ура вы победили")
-            break
-
-    if number == 6:
-        get_situation(number)
+    if errors == 6:
+        show_hangman(errors)
         print("Увы вы проиграли")
+        print("Слово было: ", *word, sep="")
 
 
 def main():
     while True:
         show_menu()
-        myword = get_sample()
-        choise = get_choice()
+        choice = get_choice()
 
-        if choise == '1':
-            try_stand(myword)
-        elif choise == '0':
+        if choice == '1':
+            myword = get_sample()
+            play_round(myword)
+        elif choice == '0':
             break
         else:
             print("Неизвестная команда")
