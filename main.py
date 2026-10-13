@@ -1,74 +1,77 @@
-print("Добро пожаловать в игру Hangman")
-print("Задано слово. Угадайте его")
-word = ['я','б','л','о','к','о']
+import random
 
-player = ['_','_','_','_','_','_']
 
-alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
+def show_begin():
+    print("\n=== Игра Виселица ===")
+    print("Добро пожаловать в игру Hangman")
+    print("Задано слово. Угадайте его")
 
-number = 0
 
-trying = False
+def get_sample():
+    words = ["яблоко", "школа", "турист", "ноутбук", "земля", "небо"]
+    word = list(random.choice(words))
+    return word
 
-  
-def trying1():
 
-    t9 = input()
+def get_choice():
+    return input("Выбери букву: ").strip()
 
-    while t9 not in alphabet or len(t9) > 1:
 
-            print("Пишите только 1 русскую букву:")
+def try_choice(letter):
+    alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
+    while letter not in alphabet or len(letter) > 1:
+        print("Пишите только 1 русскую букву:")
+        letter = get_choice()
+    return letter
 
-            t9 = input()
 
-    return t9
-  
+def try_stand(word):
+    number = 0
+    player = []
 
-while number < 5:
+    for i in range(len(word)):
+        player.append('_')
 
-    for n in range(len(player)):
+    while number < 5:
+        trying = False
 
-        print(player[n], end = " ")
+        for n in range(len(player)):
+            print(player[n], end=" ")
+        print()
 
-    print()
+        choise = get_choice()
+        choise = try_choice(choise)
 
-    t9 = trying1()
-
-    for n in range(len(word)):
-
-        if(word[n] == t9):
-
-            if(player[n] == word[n]):
-
-                print("Это буква уже была записана")
-
+        for n in range(len(word)):
+            if word[n] == choise:
+                if player[n] == word[n]:
+                    print("Это буква уже была записана")
+                    trying = True
+                    break
+                player[n] = word[n]
                 trying = True
 
-                break
+        if not trying:
+            number += 1
+            print("Осторожно осталось попыток ", 5 - number)
+        else:
+            print("Верно! Продолжайте ")
 
-            player[n] = word[n]
+        trying = False
 
-            trying = True
+        if word == player:
+            print("Ура вы победили")
+            break
 
-    if( not trying):
-
-        number += 1
-
-        print("Осторожно осталось попыток ", 5 - number)
-
-    else:
-
-        print("Верно! Продолжайте ")
-
-    trying = False
+    if number == 5:
+        print("Увы вы проиграли")
 
 
-    if (word == player):
+def main():
+    myword = get_sample()
+    show_begin()
+    try_stand(myword)
 
-        print("Ура вы победили")
 
-        break
-
-if (number == 5):
-
-    print("Увы вы проиграли")
+if __name__ == "__main__":
+    main()
